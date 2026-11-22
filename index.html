@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ELEMENTANDO · La tabla periódica hueco a hueco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --bg:#EEF2F4; --surface:#FFFFFF; --sunk:#E3E9ED; --ink:#13202B; --muted:#55636F; --line:#CDD6DC;
+  --accent:#0B6E6A; --accent-ink:#FFFFFF; --accent-soft:#D5ECEA;
+  --pos:#B9420E; --neg:#1F4FC4; --ok:#1E7A3C; --ok-soft:#DDF1E3; --bad:#B42318; --bad-soft:#FBE1DE; --warn:#8A5A00; --warn-soft:#FBEFD2;
+  --f-h:#ECE6F5; --f-alc:#FBE1DE; --f-alct:#FCE7D0; --f-tr:#DCE7F7; --f-13:#E6EED6; --f-14:#DDF1E3; --f-15:#D3ECEA; --f-16:#F4EFC8; --f-17:#F6DCEA; --f-18:#E6DEF6;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F171D; --surface:#17222A; --sunk:#1E2B34; --ink:#E6EDF1; --muted:#9AA9B4; --line:#2C3B46;
+  --accent:#4FC2BB; --accent-ink:#06201F; --accent-soft:#16383A;
+  --pos:#F2915F; --neg:#86A8FF; --ok:#6FD394; --ok-soft:#163323; --bad:#FF8E84; --bad-soft:#3A1A18; --warn:#F2C25C; --warn-soft:#3A2E12;
+  --f-h:#2A2540; --f-alc:#3D1C1A; --f-alct:#3A2814; --f-tr:#172A40; --f-13:#23301A; --f-14:#163323; --f-15:#14363A; --f-16:#34311A; --f-17:#3A1A2E; --f-18:#2A2142;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Cabecera */
+header{padding-block:26px 0}
+.brand{display:flex;flex-direction:column;gap:8px}
+.wordmark{font-family:var(--f-display);font-weight:800;font-size:clamp(38px,9.5vw,76px);letter-spacing:.015em;line-height:.95;display:flex;align-items:flex-end;flex-wrap:nowrap}
+.wordmark .me{color:var(--neg)}
+.otile{position:relative;display:inline-grid;place-items:center;width:1.02em;height:1.06em;padding:.06em 0 0 .08em;margin-left:.06em;border:.055em solid var(--accent);border-radius:.08em;color:var(--accent);background:var(--accent-soft);line-height:1}
+.otile small{position:absolute;top:.07em;left:.09em;font-family:var(--f-body);font-weight:700;font-size:.24em;color:var(--neg)}
+.slogan{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 0;font-family:var(--f-display);font-weight:600;font-size:clamp(15px,3.4vw,19px);text-transform:uppercase;letter-spacing:.14em}
+.slogan i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.slogan .d1{background:var(--pos)} .slogan .d2{background:var(--neg)}
+.meta{margin:0;color:var(--muted);font-size:14px}
+nav.tabs{display:flex;gap:2px;margin-top:18px;border-bottom:1.5px solid var(--line);overflow-x:auto}
+nav.tabs button{background:none;border:0;padding:10px 14px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1.5px;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+main{padding-block:22px 56px;display:flex;flex-direction:column;gap:16px}
+
+/* Controles */
+.controls{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.row .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);min-width:86px;font-weight:700}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sep{width:1px;height:22px;background:var(--line);margin:0 4px}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);padding:10px 18px;border-radius:8px;font-weight:700}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.btn[disabled]{opacity:.45;cursor:default}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.note{font-size:14px;color:var(--muted);margin:0}
+.note b{color:var(--ink)}
+
+/* Tabla periódica */
+.ptwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.pt{display:grid;grid-template-columns:22px repeat(18,minmax(44px,1fr));gap:3px;min-width:860px}
+.hd{font-size:11px;font-weight:700;color:var(--muted);text-align:center;align-self:end;line-height:1.2}
+.pl{font-size:11px;font-weight:700;color:var(--muted);display:grid;place-items:center}
+.cell{position:relative;aspect-ratio:1/1.08;border-radius:5px;border:1px solid transparent;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;overflow:hidden;background:none}
+.cell .z{position:absolute;top:2px;left:4px;font-size:10px;font-weight:700;line-height:1}
+.cell .s{font-family:var(--f-display);font-weight:800;font-size:clamp(14px,1.9vw,20px);line-height:1}
+.cell .m{font-size:9px;color:var(--muted);line-height:1;margin-top:3px;font-variant-numeric:tabular-nums}
+.cell .nm{font-size:9px;line-height:1.05;margin-top:2px;max-width:100%;padding:0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .tag{position:absolute;top:2px;right:3px;font-size:8px;font-weight:800;letter-spacing:.04em;color:var(--neg)}
+/* explorar */
+.cell.ex{border-color:rgba(0,0,0,.08)}
+.cell.ex[aria-pressed="true"]{outline:2.5px solid var(--ink);outline-offset:1px}
+.fam-h{background:var(--f-h)} .fam-alc{background:var(--f-alc)} .fam-alct{background:var(--f-alct)} .fam-tr{background:var(--f-tr)}
+.fam-13{background:var(--f-13)} .fam-14{background:var(--f-14)} .fam-15{background:var(--f-15)} .fam-16{background:var(--f-16)} .fam-17{background:var(--f-17)} .fam-18{background:var(--f-18)}
+/* práctica y examen */
+.cell.off{background:var(--sunk);opacity:.55;cursor:default}
+.cell.tg{background:var(--surface);border:1.5px solid var(--ink)}
+.cell.tg.sel{outline:3px solid var(--accent);outline-offset:1px;background:var(--accent-soft)}
+.cell.tg.ok{background:var(--ok-soft);border-color:var(--ok)}
+.cell.tg.warn{background:var(--warn-soft);border-color:var(--warn)}
+.cell.tg.bad{background:var(--bad-soft);border-color:var(--bad)}
+.cell.tg.shown .s,.cell.tg.shown .nm{color:var(--neg)}
+.cell .fix{font-size:9px;color:var(--bad);font-weight:700;line-height:1;margin-top:2px}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.1)}
+
+/* Ficha del elemento */
+.detail{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:start}
+.bigtile{width:120px;height:130px;border-radius:10px;border:2px solid var(--ink);position:relative;display:grid;place-items:center;align-content:center;gap:4px}
+.bigtile .z{position:absolute;top:6px;left:9px;font-weight:700;font-size:15px}
+.bigtile .s{font-family:var(--f-display);font-weight:800;font-size:50px;line-height:1}
+.bigtile .m{font-size:13px;font-variant-numeric:tabular-nums}
+.detail h2{font-size:28px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 16px;margin:12px 0 0}
+.facts div{font-size:15px}
+.facts dt{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.facts dd{margin:0;font-weight:700}
+.conf{margin-top:14px;background:var(--sunk);border-radius:var(--r);padding:12px 14px;font-size:16px}
+.conf .lab{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.conf .lab button{background:none;border:0;color:var(--accent);font-weight:700;font-size:13px;text-transform:none;letter-spacing:0;padding:0}
+.conf p{margin:6px 0 0;font-family:var(--f-display);font-weight:600;font-size:18px;word-spacing:4px}
+.conf .ex{font-family:var(--f-body);font-weight:400;font-size:14px;color:var(--warn);word-spacing:0}
+.conf sup{font-size:.65em}
+
+/* Barra de respuesta */
+.bar{position:sticky;bottom:0;z-index:5;background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;padding:14px 16px;box-shadow:0 -6px 18px rgba(0,0,0,.08);display:flex;flex-direction:column;gap:10px}
+.bar .q{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.bar .q b{color:var(--ink);font-size:15px;letter-spacing:.02em;text-transform:none}
+.inputs{display:flex;gap:8px;flex-wrap:wrap}
+.inputs label{display:flex;flex-direction:column;gap:3px;flex:1 1 160px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.inputs label.sym{flex:0 1 120px}
+.inputs input{font:inherit;font-size:19px;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:0;width:100%;text-transform:none;letter-spacing:0}
+.inputs input:focus{border-color:var(--accent);outline:none}
+.bar .nav{display:flex;gap:8px;align-items:end}
+.bar .nav .btn{padding:10px 14px}
+
+/* Resultados */
+.stats{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;align-items:baseline}
+.stats b{color:var(--ink);font-size:20px}
+.fb{border-radius:var(--r);padding:14px 16px;background:var(--sunk);border-left:4px solid var(--accent)}
+.fb.ok{background:var(--ok-soft);border-left-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-left-color:var(--bad)}
+.fb.warn{background:var(--warn-soft);border-left-color:var(--warn)}
+.fb strong{display:block;margin-bottom:4px}
+.fb ul{margin:6px 0 0;padding-left:20px}
+.fb li{margin:2px 0}
+.score{font-family:var(--f-display);font-size:64px;font-weight:800;line-height:1}
+.timer{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)}
+.progress{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.setup{display:flex;flex-direction:column;gap:14px;max-width:760px}
+.setup h2{font-size:24px}
+
+footer{color:var(--muted);font-size:13px;padding-block:20px 32px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+footer p{margin:0} footer b{color:var(--ink)} footer a{color:var(--accent)}
+
+@media (max-width:640px){
+  .detail{grid-template-columns:minmax(0,1fr)}
+  .bigtile{width:104px;height:112px}
+  .bigtile .s{font-size:42px}
+  .card{padding:16px}
+  .row .lbl{min-width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <h1 class="wordmark" aria-label="Elementando"><span aria-hidden="true">ELE</span><span class="me" aria-hidden="true" title="La ME de Mendeléiev">ME</span><span aria-hidden="true">NTAND</span><span class="otile" aria-hidden="true" title="Oxígeno, Z = 8"><small>8</small>O</span></h1>
+    <p class="slogan"><span>Explora</span><i class="d1"></i><span>Coloca</span><i class="d2"></i><span>Domina</span></p>
+    <p class="meta">La tabla periódica hueco a hueco · Grupos principales y metales de transición · ESO</p>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="explorar">Explorar</button>
+    <button role="tab" data-tab="practicar">Practicar</button>
+    <button role="tab" data-tab="examen">Examen</button>
+  </nav>
+</header>
+
+<main>
+  <!-- EXPLORAR -->
+  <section id="v-explorar" hidden>
+    <p class="note">Toca un elemento para ver su ficha.</p>
+    <div class="ptwrap"><div class="pt" id="pt-ex"></div>
+      <div class="legend" id="legend"></div></div>
+    <div class="card" id="detail"></div>
+  </section>
+
+  <!-- PRACTICAR -->
+  <section id="v-practicar" hidden>
+    <div class="controls">
+      <div class="row"><span class="lbl">Grupo</span><div class="seg" id="b-groups"></div></div>
+      <div class="row"><span class="lbl">Transición</span><div class="seg" id="b-trans"></div></div>
+      <div class="row"><span class="lbl">Escribe el</span><div class="seg" id="p-modes">
+        <button class="chip" data-mode="s">Símbolo</button>
+        <button class="chip" data-mode="n">Nombre</button>
+        <button class="chip" data-mode="mix">Mixto</button>
+      </div></div>
+    </div>
+    <p class="note" id="p-hint"></p>
+    <div class="ptwrap"><div class="pt" id="pt-pr"></div></div>
+    <div class="bar" id="p-bar"></div>
+    <div class="actions">
+      <button class="btn" id="p-check">Comprobar</button>
+      <button class="btn ghost" id="p-retry" disabled>Corregir solo los fallos</button>
+      <button class="btn ghost" id="p-sol">Ver solución</button>
+      <button class="btn ghost" id="p-reset">Empezar de nuevo</button>
+    </div>
+    <div id="p-result"></div>
+  </section>
+
+  <!-- EXAMEN -->
+  <section id="v-examen" hidden>
+    <div class="card setup" id="e-setup">
+      <div><h2>Examen final</h2>
+      <p class="note">Rellena todos los huecos y pulsa <b>Entregar</b>. La corrección y la nota aparecen al final.</p></div>
+      <div class="row"><span class="lbl">Contenido</span><div class="seg" id="e-content">
+        <button class="chip" data-v="main">Grupos 1, 2 y 13 a 18</button>
+        <button class="chip" data-v="full">Tabla completa (con transición)</button>
+      </div></div>
+      <div class="row"><span class="lbl">Tipo</span><div class="seg" id="e-type">
+        <button class="chip" data-v="s">Examen de símbolos</button>
+        <button class="chip" data-v="n">Examen de nombres</button>
+        <button class="chip" data-v="both">Completo (símbolo y nombre)</button>
+      </div></div>
+      <p class="note" id="e-count"></p>
+      <div class="actions"><button class="btn" id="e-start">Empezar examen</button></div>
+    </div>
+    <div id="e-run" hidden>
+      <div class="stats" style="margin-bottom:8px"><span>Tiempo <b class="timer" id="e-timer">0:00</b></span><span>Respondidos <b id="e-done">0</b> de <b id="e-total">0</b></span></div>
+      <div class="progress" style="margin-bottom:12px"><i id="e-prog" style="width:0"></i></div>
+      <div class="ptwrap"><div class="pt" id="pt-exam"></div></div>
+      <div class="bar" id="e-bar" style="margin-top:16px"></div>
+      <div class="actions" style="margin-top:16px">
+        <button class="btn" id="e-submit">Entregar</button>
+        <button class="btn ghost" id="e-cancel">Abandonar</button>
+      </div>
+      <div id="e-warn" style="margin-top:12px"></div>
+    </div>
+    <div id="e-res" hidden></div>
+  </section>
+</main>
+
+<footer class="credits">
+  <p><b>Autor:</b> Francisco González Calle · Física y Química</p>
+  <p><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es" target="_blank" rel="license noopener">Licencia Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)</a></p>
+  <p>Web de autoaprendizaje: no se guarda ningún dato. El nombre lleva la ME de Mendeléiev y la O del oxígeno.</p>
+  <p>Masas atómicas en u, redondeadas a dos decimales; entre paréntesis, la del isótopo más estable.</p>
+  <p id="visitas" hidden>Visitas a la web: <b></b></p>
+</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Datos: Z, símbolo, nombre, masa atómica ---------- */
+const RAW=[
+[1,'H','Hidrógeno','1,01'],[2,'He','Helio','4,00'],[3,'Li','Litio','6,94'],[4,'Be','Berilio','9,01'],[5,'B','Boro','10,81'],
+[6,'C','Carbono','12,01'],[7,'N','Nitrógeno','14,01'],[8,'O','Oxígeno','16,00'],[9,'F','Flúor','19,00'],[10,'Ne','Neón','20,18'],
+[11,'Na','Sodio','22,99'],[12,'Mg','Magnesio','24,31'],[13,'Al','Aluminio','26,98'],[14,'Si','Silicio','28,09'],[15,'P','Fósforo','30,97'],
+[16,'S','Azufre','32,06'],[17,'Cl','Cloro','35,45'],[18,'Ar','Argón','39,95'],[19,'K','Potasio','39,10'],[20,'Ca','Calcio','40,08'],
+[21,'Sc','Escandio','44,96'],[22,'Ti','Titanio','47,87'],[23,'V','Vanadio','50,94'],[24,'Cr','Cromo','52,00'],[25,'Mn','Manganeso','54,94'],
+[26,'Fe','Hierro','55,85'],[27,'Co','Cobalto','58,93'],[28,'Ni','Níquel','58,69'],[29,'Cu','Cobre','63,55'],[30,'Zn','Cinc','65,38'],
+[31,'Ga','Galio','69,72'],[32,'Ge','Germanio','72,63'],[33,'As','Arsénico','74,92'],[34,'Se','Selenio','78,97'],[35,'Br','Bromo','79,90'],
+[36,'Kr','Kriptón','83,80'],[37,'Rb','Rubidio','85,47'],[38,'Sr','Estroncio','87,62'],[39,'Y','Itrio','88,91'],[40,'Zr','Circonio','91,22'],
+[41,'Nb','Niobio','92,91'],[42,'Mo','Molibdeno','95,95'],[43,'Tc','Tecnecio','(98)'],[44,'Ru','Rutenio','101,07'],[45,'Rh','Rodio','102,91'],
+[46,'Pd','Paladio','106,42'],[47,'Ag','Plata','107,87'],[48,'Cd','Cadmio','112,41'],[49,'In','Indio','114,82'],[50,'Sn','Estaño','118,71'],
+[51,'Sb','Antimonio','121,76'],[52,'Te','Teluro','127,60'],[53,'I','Yodo','126,90'],[54,'Xe','Xenón','131,29'],[55,'Cs','Cesio','132,91'],
+[56,'Ba','Bario','137,33'],[57,'La','Lantano','138,91'],[72,'Hf','Hafnio','178,49'],[73,'Ta','Tántalo','180,95'],[74,'W','Wolframio','183,84'],
+[75,'Re','Renio','186,21'],[76,'Os','Osmio','190,23'],[77,'Ir','Iridio','192,22'],[78,'Pt','Platino','195,08'],[79,'Au','Oro','196,97'],
+[80,'Hg','Mercurio','200,59'],[81,'Tl','Talio','204,38'],[82,'Pb','Plomo','207,20'],[83,'Bi','Bismuto','208,98'],[84,'Po','Polonio','(209)'],
+[85,'At','Astato','(210)'],[86,'Rn','Radón','(222)'],[87,'Fr','Francio','(223)'],[88,'Ra','Radio','(226)']];
+/* Nombres alternativos aceptados */
+const ALT={30:['Zinc'],36:['Criptón'],40:['Zirconio'],52:['Telurio'],53:['Iodo'],73:['Tantalio'],74:['Tungsteno']};
+
+function place(z){
+  if(z===1) return [1,1]; if(z===2) return [18,1];
+  if(z<=10) return [z<=4?z-2:z+8,2];
+  if(z<=18) return [z<=12?z-10:z,3];
+  if(z<=36) return [z-18,4];
+  if(z<=54) return [z-36,5];
+  if(z<=57) return [z-54,6];
+  if(z<=86) return [z-68,6];
+  return [z-86,7];
+}
+const FAM={h:'Hidrógeno',alc:'Alcalinos',alct:'Alcalinotérreos',tr:'Metales de transición','13':'Térreos (boroideos)','14':'Carbonoideos','15':'Nitrogenoideos','16':'Anfígenos (calcógenos)','17':'Halógenos','18':'Gases nobles'};
+function fam(z,g){ if(z===1) return 'h'; if(g===1) return 'alc'; if(g===2) return 'alct'; if(g<=12) return 'tr'; return String(g); }
+const EL=RAW.map(([z,s,n,m])=>{const [g,p]=place(z);return {z,s,n,m,g,p,f:fam(z,g),names:[n].concat(ALT[z]||[])};});
+const BYZ={}; EL.forEach(e=>BYZ[e.z]=e);
+
+/* ---------- Configuración electrónica ---------- */
+const ORD=[[1,0],[2,0],[2,1],[3,0],[3,1],[4,0],[3,2],[4,1],[5,0],[4,2],[5,1],[6,0],[4,3],[5,2],[6,1],[7,0]];
+const L='spdf';
+const EXC={24:{'4s':1,'3d':5},29:{'4s':1,'3d':10},41:{'5s':1,'4d':4},42:{'5s':1,'4d':5},44:{'5s':1,'4d':7},45:{'5s':1,'4d':8},
+  46:{'5s':0,'4d':10},47:{'5s':1,'4d':10},57:{'4f':0,'5d':1},78:{'6s':1,'5d':9},79:{'6s':1,'5d':10}};
+function confArr(z,real){
+  let left=z;
+  const o=ORD.map(([n,l])=>{const c=Math.min(left,2*(2*l+1));left-=c;return {k:n+L[l],n,l,c};});
+  if(real&&EXC[z]) o.forEach(x=>{if(x.k in EXC[z]) x.c=EXC[z][x.k];});
+  return o.filter(x=>x.c>0);
+}
+const fmt=a=>a.map(x=>x.k+'<sup>'+x.c+'</sup>').join(' ');
+const CORES=[[86,'Rn'],[54,'Xe'],[36,'Kr'],[18,'Ar'],[10,'Ne'],[2,'He']];
+function confShort(z,real){
+  const arr=confArr(z,real); const core=CORES.find(c=>c[0]<z);
+  if(!core) return fmt(arr);
+  const ck=new Set(confArr(core[0],false).map(x=>x.k));
+  return '['+core[1]+'] '+fmt(arr.filter(x=>!ck.has(x.k)));
+}
+
+/* ---------- Comprobación ---------- */
+const strip=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'');
+const hasAcc=s=>strip(s)!==s;
+function checkSym(a,e){
+  a=a.trim();
+  if(!a) return {st:'bad',msg:'sin responder',ans:'—'};
+  if(a===e.s) return {st:'ok'};
+  if(a.toLowerCase()===e.s.toLowerCase()) return {st:'bad',msg:'ojo con mayúsculas y minúsculas: es «'+e.s+'»',ans:a};
+  return {st:'bad',msg:'es «'+e.s+'»',ans:a};
+}
+function checkName(a,e){
+  const t=a.trim().toLowerCase();
+  if(!t) return {st:'bad',msg:'sin responder',ans:'—'};
+  if(e.names.some(x=>x.toLowerCase()===t)) return {st:'ok'};
+  const hit=e.names.find(x=>strip(x.toLowerCase())===strip(t));
+  if(hit){
+    if(hasAcc(hit)&&!hasAcc(t)) return {st:'warn',msg:'lleva tilde: «'+hit+'»',ans:a.trim()};
+    return {st:'warn',msg:'revisa la tilde: se escribe «'+hit+'»',ans:a.trim()};
+  }
+  return {st:'bad',msg:'es «'+e.n+'»',ans:a.trim()};
+}
+const worst=(...r)=>r.some(x=>x&&x.st==='bad')?'bad':r.some(x=>x&&x.st==='warn')?'warn':'ok';
+
+/* ---------- Pestañas ---------- */
+const tabs=[...document.querySelectorAll('nav.tabs button')];
+function show(t){
+  tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
+  ['explorar','practicar','examen'].forEach(v=>$('#v-'+v).hidden=v!==t);
+  try{history.replaceState(null,'','#'+t);}catch(_){}
+}
+tabs.forEach(b=>b.onclick=()=>show(b.dataset.tab));
+
+/* ---------- Rejilla común ---------- */
+function gridFrame(){
+  let h='<div></div>';
+  for(let g=1;g<=18;g++) h+=`<div class="hd" style="grid-column:${g+1};grid-row:1">${g}</div>`;
+  for(let p=1;p<=7;p++) h+=`<div class="pl" style="grid-column:1;grid-row:${p+1}">${p}</div>`;
+  return h;
+}
+const at=e=>`grid-column:${e.g+1};grid-row:${e.p+1}`;
+
+/* ---------- EXPLORAR ---------- */
+let exSel=26, showConf=true;
+function renderExplore(){
+  let h=gridFrame();
+  EL.forEach(e=>{h+=`<button class="cell ex fam-${e.f==='h'?'h':e.f}" style="${at(e)}" data-z="${e.z}" aria-pressed="${e.z===exSel}" aria-label="${esc(e.n)}"><span class="z">${e.z}</span><span class="s">${e.s}</span><span class="m">${e.m}</span></button>`;});
+  $('#pt-ex').innerHTML=h;
+  $('#legend').innerHTML=Object.keys(FAM).map(k=>`<span><i class="fam-${k}"></i>${FAM[k]}</span>`).join('');
+  renderDetail();
+}
+$('#pt-ex').addEventListener('click',ev=>{
+  const b=ev.target.closest('.cell'); if(!b) return;
+  exSel=+b.dataset.z;
+  document.querySelectorAll('#pt-ex .cell').forEach(c=>c.setAttribute('aria-pressed',c===b));
+  renderDetail();
+  if(window.innerWidth<900) $('#detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+function renderDetail(){
+  const e=BYZ[exSel];
+  const famTxt=e.z===1?'No metal (se coloca en el grupo 1, pero no es un metal alcalino)':FAM[e.f];
+  let conf='';
+  if(showConf){
+    conf=`<p>${fmt(confArr(e.z,true))}</p><p>${confShort(e.z,true)}</p>`;
+    if(EXC[e.z]) conf+=`<p class="ex">Excepción: según el diagrama de Moeller sería ${confShort(e.z,false)}</p>`;
+  }
+  $('#detail').innerHTML=`<div class="detail">
+    <div class="bigtile fam-${e.f}"><span class="z">${e.z}</span><span class="s">${e.s}</span><span class="m">${e.m}</span></div>
+    <div><h2>${esc(e.n)}</h2>${e.names.length>1?`<p class="note">También se acepta: ${e.names.slice(1).join(', ')}</p>`:''}
+      <dl class="facts">
+        <div><dt>Símbolo</dt><dd>${e.s}</dd></div>
+        <div><dt>Número atómico (Z)</dt><dd>${e.z}</dd></div>
+        <div><dt>Masa atómica</dt><dd>${e.m} u</dd></div>
+        <div><dt>Grupo · Periodo</dt><dd>${e.g} · ${e.p}</dd></div>
+        <div style="grid-column:1/-1"><dt>Familia</dt><dd>${famTxt}</dd></div>
+      </dl>
+      <div class="conf"><div class="lab">Configuración electrónica <button id="tgconf">${showConf?'Ocultar':'Mostrar'}</button></div>${conf}</div>
+    </div></div>`;
+  $('#tgconf').onclick=()=>{showConf=!showConf;renderDetail();};
+}
+
+/* ---------- Modelo de ejercicio (práctica y examen) ---------- */
+function makeBoard(opts){
+  /* opts: root, bar, list (elementos), ask(e)->{s,n}, live (bool: corrección visible), onChange */
+  const B={cells:opts.list.map(e=>({e,ask:opts.ask(e),a:{s:'',n:''},r:null,shown:false})),sel:0,locked:false};
+  B.render=function(){
+    const inSet=new Set(B.cells.map(c=>c.e.z));
+    let h=gridFrame();
+    EL.forEach(e=>{ if(!inSet.has(e.z)) h+=`<div class="cell off" style="${at(e)}"></div>`; });
+    B.cells.forEach((c,i)=>{
+      const cls=['cell','tg']; if(i===B.sel&&!B.locked) cls.push('sel');
+      if(c.r) cls.push(c.r.st); if(c.shown) cls.push('shown');
+      const tag=c.ask.s&&c.ask.n?'':(opts.tags?(c.ask.s?'S':'N'):'');
+      let inner=`<span class="z">${c.e.z}</span>${tag?`<span class="tag">${tag}</span>`:''}`;
+      if(c.ask.s) inner+=`<span class="s">${esc(c.a.s)||'&nbsp;'}</span>`;
+      if(c.ask.n) inner+=`<span class="nm" ${c.ask.s?'':'style="font-size:10px;font-weight:700"'}>${esc(c.a.n)||(c.ask.s?'':'&nbsp;')}</span>`;
+      if(c.r&&c.r.st==='bad'&&B.locked) inner+=`<span class="fix">${c.ask.s?c.e.s:''}${c.ask.s&&c.ask.n?' · ':''}${c.ask.n?esc(c.e.n.slice(0,9)):''}</span>`;
+      h+=`<button class="${cls.join(' ')}" style="${at(c.e)}" data-i="${i}" aria-label="Z ${c.e.z}">${inner}</button>`;
+    });
+    opts.root.innerHTML=h;
+    B.renderBar();
+  };
+  B.renderBar=function(){
+    if(B.locked){opts.bar.hidden=true;return;} opts.bar.hidden=false;
+    const c=B.cells[B.sel];
+    const f=[];
+    if(c.ask.s) f.push(`<label class="sym">Símbolo<input id="${opts.id}-s" value="${esc(c.a.s)}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="3"></label>`);
+    if(c.ask.n) f.push(`<label>Nombre<input id="${opts.id}-n" value="${esc(c.a.n)}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="20"></label>`);
+    const what=c.ask.s&&c.ask.n?'símbolo y nombre':c.ask.s?'el símbolo':'el nombre';
+    opts.bar.innerHTML=`<div class="q"><span>Hueco ${B.sel+1} de ${B.cells.length}</span><b>Z = ${c.e.z} · escribe ${what}</b></div>
+      <div class="inputs">${f.join('')}<div class="nav"><button class="btn ghost" data-go="-1" aria-label="Anterior">‹</button><button class="btn" data-go="1">Siguiente ›</button></div></div>`;
+    const ins=[...opts.bar.querySelectorAll('input')];
+    ins.forEach((inp,k)=>{
+      const key=inp.id.endsWith('-s')?'s':'n';
+      inp.addEventListener('input',()=>{c.a[key]=inp.value;c.r=null;c.shown=false;B.paintCell(B.sel);opts.onChange&&opts.onChange();});
+      inp.addEventListener('keydown',ev=>{
+        if(ev.key==='Enter'){ev.preventDefault(); if(k<ins.length-1) ins[k+1].focus(); else B.go(1);}
+      });
+    });
+  };
+  B.paintCell=function(i){
+    const el=opts.root.querySelector(`[data-i="${i}"]`); if(!el) return;
+    const c=B.cells[i];
+    const s=el.querySelector('.s'), n=el.querySelector('.nm');
+    if(s) s.innerHTML=esc(c.a.s)||'&nbsp;';
+    if(n) n.innerHTML=esc(c.a.n)||(c.ask.s?'':'&nbsp;');
+    el.classList.remove('ok','bad','warn','shown');
+  };
+  B.select=function(i,focus){
+    B.sel=(i+B.cells.length)%B.cells.length;
+    opts.root.querySelectorAll('.tg').forEach(x=>x.classList.toggle('sel',+x.dataset.i===B.sel));
+    B.renderBar();
+    const cell=opts.root.querySelector(`[data-i="${B.sel}"]`);
+    if(cell){const w=opts.root.parentElement;const l=cell.offsetLeft-w.clientWidth/2+cell.offsetWidth/2;w.scrollTo({left:Math.max(0,l),behavior:'smooth'});}
+    if(focus!==false){const f=opts.bar.querySelector('input');if(f) f.focus({preventScroll:true});}
+  };
+  B.go=function(d){B.select(B.sel+d);};
+  opts.root.addEventListener('click',ev=>{const b=ev.target.closest('.tg');if(!b||B.locked) return;B.select(+b.dataset.i);});
+  opts.bar.addEventListener('click',ev=>{const b=ev.target.closest('[data-go]');if(b) B.go(+b.dataset.go);});
+  B.grade=function(){
+    B.cells.forEach(c=>{
+      c.rs=c.ask.s?checkSym(c.a.s,c.e):null;
+      c.rn=c.ask.n?checkName(c.a.n,c.e):null;
+      c.r={st:worst(c.rs,c.rn)};
+    });
+    let items=0,ok=0,warn=0; const errs=[],warns=[];
+    B.cells.forEach(c=>{[['símbolo',c.rs],['nombre',c.rn]].forEach(([k,r])=>{
+      if(!r) return; items++;
+      if(r.st!=='bad') ok++;
+      if(r.st==='warn'){warn++;warns.push(`Z = ${c.e.z} (${k}): escribiste «${esc(r.ans)}», ${r.msg}`);}
+      if(r.st==='bad') errs.push(`Z = ${c.e.z} (${k}): ${r.ans==='—'?'sin responder':'escribiste «'+esc(r.ans)+'»'} → ${r.msg==='sin responder'?(k==='símbolo'?'«'+c.e.s+'»':'«'+c.e.n+'»'):r.msg}`);
+    });});
+    return {items,ok,warn,bad:items-ok,errs,warns};
+  };
+  B.answered=()=>B.cells.filter(c=>(!c.ask.s||c.a.s.trim())&&(!c.ask.n||c.a.n.trim())).length;
+  return B;
+}
+
+function resultHTML(g,title){
+  let h=`<div class="fb ${g.bad?'bad':g.warn?'warn':'ok'}"><strong>${title}</strong>
+    <div class="stats"><span>Aciertos <b>${g.ok}</b> de ${g.items}</span><span>Errores <b>${g.bad}</b></span>${g.warn?`<span>Avisos de tilde <b>${g.warn}</b></span>`:''}</div>`;
+  if(g.errs.length) h+=`<ul>${g.errs.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  if(g.warns.length) h+=`<p style="margin:10px 0 0"><b>Tildes</b> (cuentan como acierto, pero corrígelas):</p><ul>${g.warns.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  if(!g.bad&&!g.warn) h+='<p style="margin:6px 0 0">¡Todo perfecto!</p>';
+  return h+'</div>';
+}
+
+/* ---------- PRACTICAR ---------- */
+const BLOCKS={};
+[1,2,13,14,15,16,17,18].forEach(g=>BLOCKS['g'+g]={label:String(g),list:EL.filter(e=>e.g===g)});
+[4,5,6].forEach(p=>BLOCKS['t'+p]={label:'Periodo '+p,list:EL.filter(e=>e.f==='tr'&&e.p===p)});
+BLOCKS.tall={label:'Todos',list:EL.filter(e=>e.f==='tr')};
+$('#b-groups').innerHTML=[1,2,13,14,15,16,17,18].map(g=>`<button class="chip" data-b="g${g}">Grupo ${g}</button>`).join('');
+$('#b-trans').innerHTML=['t4','t5','t6','tall'].map(k=>`<button class="chip" data-b="${k}">${BLOCKS[k].label}</button>`).join('');
+let pBlock='g1',pMode='s',P=null;
+function pStart(){
+  document.querySelectorAll('[data-b]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.b===pBlock));
+  document.querySelectorAll('#p-modes .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===pMode));
+  const ask=pMode==='s'?()=>({s:true,n:false}):pMode==='n'?()=>({s:false,n:true}):()=>Math.random()<.5?{s:true,n:false}:{s:false,n:true};
+  P=makeBoard({id:'p',root:$('#pt-pr'),bar:$('#p-bar'),list:BLOCKS[pBlock].list,ask,tags:pMode==='mix'});
+  P.render();
+  let hint=pBlock==='g1'?'El hidrógeno se coloca en el grupo 1, aunque no es un metal alcalino.':'';
+  if(pMode==='mix') hint+=(hint?' ':'')+'En cada hueco, «S» pide el símbolo y «N» pide el nombre.';
+  $('#p-hint').textContent=hint; $('#p-hint').hidden=!hint;
+  $('#p-result').innerHTML=''; $('#p-retry').disabled=true;
+}
+$('#b-groups').onclick=$('#b-trans').onclick=ev=>{const b=ev.target.closest('[data-b]');if(b){pBlock=b.dataset.b;pStart();}};
+$('#p-modes').onclick=ev=>{const b=ev.target.closest('[data-mode]');if(b){pMode=b.dataset.mode;pStart();}};
+$('#p-check').onclick=()=>{
+  const g=P.grade(); P.cells.forEach(c=>c.shown=false);
+  P.render();
+  $('#p-result').innerHTML=resultHTML(g,g.bad?`Llevas ${g.bad} error${g.bad>1?'es':''}`:'¡Sin errores!');
+  $('#p-retry').disabled=!g.bad;
+};
+$('#p-retry').onclick=()=>{
+  let first=-1;
+  P.cells.forEach((c,i)=>{
+    if(c.rs&&c.rs.st==='bad'){c.a.s='';if(first<0)first=i;}
+    if(c.rn&&c.rn.st==='bad'){c.a.n='';if(first<0)first=i;}
+    if(c.r&&c.r.st==='bad') c.r=null;
+  });
+  P.sel=Math.max(0,first); P.render(); P.select(P.sel);
+  $('#p-result').innerHTML=''; $('#p-retry').disabled=true;
+};
+$('#p-sol').onclick=()=>{
+  P.cells.forEach(c=>{if(c.ask.s)c.a.s=c.e.s;if(c.ask.n)c.a.n=c.e.n;c.r=null;c.shown=true;});
+  P.render(); $('#p-result').innerHTML='<div class="fb"><strong>Solución</strong>Míralas bien y pulsa «Empezar de nuevo» para intentarlo sin ayuda.</div>';
+};
+$('#p-reset').onclick=pStart;
+
+/* ---------- EXAMEN ---------- */
+let eContent='main',eType='s',E=null,eT0=0,eTick=null,eWarned=false;
+function eList(){return eContent==='main'?EL.filter(e=>e.f!=='tr'):EL.slice();}
+function eSetup(){
+  document.querySelectorAll('#e-content .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===eContent));
+  document.querySelectorAll('#e-type .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===eType));
+  const n=eList().length;
+  $('#e-count').innerHTML=`<b>${n} elementos</b>${eType==='both'?` · ${2*n} respuestas (símbolo y nombre de cada uno)`:''}. Sin lantánidos ni actínidos; del periodo 7, solo francio y radio.`;
+}
+$('#e-content').onclick=ev=>{const b=ev.target.closest('[data-v]');if(b){eContent=b.dataset.v;eSetup();}};
+$('#e-type').onclick=ev=>{const b=ev.target.closest('[data-v]');if(b){eType=b.dataset.v;eSetup();}};
+const mmss=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+function eProgress(){
+  const d=E.answered(),t=E.cells.length;
+  $('#e-done').textContent=d;$('#e-total').textContent=t;$('#e-prog').style.width=(100*d/t)+'%';
+  if(eWarned){eWarned=false;$('#e-warn').innerHTML='';}
+}
+$('#e-start').onclick=()=>{
+  const ask=eType==='s'?()=>({s:true,n:false}):eType==='n'?()=>({s:false,n:true}):()=>({s:true,n:true});
+  E=makeBoard({id:'e',root:$('#pt-exam'),bar:$('#e-bar'),list:eList(),ask,onChange:eProgress});
+  $('#e-setup').hidden=true;$('#e-res').hidden=true;$('#e-run').hidden=false;$('#e-warn').innerHTML='';eWarned=false;
+  E.render();eProgress();E.select(0);
+  eT0=Date.now();clearInterval(eTick);eTick=setInterval(()=>$('#e-timer').textContent=mmss(Date.now()-eT0),1000);$('#e-timer').textContent='0:00';
+};
+$('#e-cancel').onclick=()=>{clearInterval(eTick);$('#e-run').hidden=true;$('#e-setup').hidden=false;};
+$('#e-submit').onclick=()=>{
+  const left=E.cells.length-E.answered();
+  if(left&&!eWarned){eWarned=true;$('#e-warn').innerHTML=`<div class="fb warn"><strong>Te quedan ${left} hueco${left>1?'s':''} sin completar.</strong>Si quieres entregar igualmente, pulsa otra vez «Entregar».</div>`;return;}
+  clearInterval(eTick);const time=Date.now()-eT0;
+  const g=E.grade();E.locked=true;
+  const nota=(Math.round(100*g.ok/g.items)/10).toFixed(1).replace('.',',');
+  $('#e-run').hidden=true;$('#e-res').hidden=false;
+  const label=(eContent==='main'?'Grupos 1, 2 y 13 a 18':'Tabla completa')+' · '+({s:'Símbolos',n:'Nombres',both:'Símbolo y nombre'})[eType];
+  $('#e-res').innerHTML=`<div class="card" style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+      <div><div class="note">Nota</div><div class="score">${nota}</div></div>
+      <div class="stats" style="flex-direction:column;gap:4px"><span>${label}</span><span>Tiempo <b>${mmss(time)}</b></span></div>
+      <div class="actions" style="margin-left:auto"><button class="btn" id="e-again">Repetir examen</button><button class="btn ghost" id="e-change">Cambiar examen</button></div>
+    </div>
+    <p class="note" style="margin-bottom:8px">En rojo, los fallos con la respuesta correcta debajo; en ámbar, los avisos de tilde.</p>
+    <div class="ptwrap" style="margin-bottom:16px"><div class="pt" id="pt-exres"></div></div>${resultHTML(g,'Corrección')}`;
+  E.render();
+  $('#pt-exres').innerHTML=$('#pt-exam').innerHTML;
+  $('#e-again').onclick=()=>$('#e-start').click();
+  $('#e-change').onclick=()=>{$('#e-res').hidden=true;$('#e-setup').hidden=false;};
+  window.scrollTo({top:$('#v-examen').offsetTop-10,behavior:'smooth'});
+};
+
+/* ---------- Inicio ---------- */
+renderExplore(); pStart(); eSetup();
+const h=location.hash.slice(1); show(['explorar','practicar','examen'].includes(h)?h:'explorar');
+})();
+</script>
+<script data-goatcounter="https://elementando.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>fetch('https://elementando.goatcounter.com/counter/TOTAL.json').then(r=>r.json()).then(d=>{const e=document.getElementById('visitas');e.querySelector('b').textContent=d.count;e.hidden=false}).catch(()=>{})</script>
+</body>
+</html>
